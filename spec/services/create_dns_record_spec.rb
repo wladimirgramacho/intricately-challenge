@@ -33,7 +33,7 @@ describe CreateDnsRecord do
       end
 
       it 'returns failure if dns record is already exists' do
-        DnsRecord.create(ip: '1.1.1.1')
+        create(:dns_record, ip: '1.1.1.1')
         result = subject.new(params).process
         expect(result.success?).to be_falsey
       end
