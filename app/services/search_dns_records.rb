@@ -10,21 +10,26 @@ class SearchDnsRecords
   def process
     dns_records = DnsRecord.all.page(@page).per(PAGE_LIMIT)
 
-    related_hostnames = []
+    response = {
+      total_records: dns_records.count,
+      records: dns_records,
+      related_hostnames: related_hostnames(dns_records)
+    }
+    Result.new(true, nil, response)
+  end
+
+  private
+
+  def related_hostnames(dns_records)
+    hostnames = []
     addresses_in_dns_records = dns_records.includes(:hostnames).pluck(:address)
     addresses = addresses_in_dns_records.uniq
     addresses.each do |address|
-      related_hostnames << {
+      hostnames << {
         hostname: address,
         count: addresses_in_dns_records.count(address)
       }
     end
-
-    response = {
-      total_records: dns_records.count,
-      records: dns_records,
-      related_hostnames: related_hostnames
-    }
-    Result.new(true, nil, response)
+    hostnames
   end
 end
