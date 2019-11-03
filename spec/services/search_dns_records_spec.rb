@@ -46,27 +46,38 @@ describe SearchDnsRecords do
       it 'returns related hostnames' do
         create_dns_records_with_hostnames
         related_hostnames = [
-          { hostname: 'lorem.com', count: 2 },
           { hostname: 'ipsum.com', count: 2 }
         ]
 
-        result = subject.new(page: 1).process
+        result = subject.new(page: 1, included_hostnames: ['lorem.com']).process
         expect(result.response[:related_hostnames]).to eq(related_hostnames)
       end
 
-      it 'returns result only including passed addresses' do
-        create_dns_records_with_hostnames
-        result = subject.new(page: 1, included_hostnames: 'lorem.com').process
-        expect(result.response).to eq({
-          total_records: 2,
-          records: [
-            { id: 1, ip: '0.0.0.0' },
-            { id: 2, ip: '1.1.1.1' }
-          ],
-          related_hostnames: [
-            { hostname: 'ipsum.com', count: 2 }
-          ]
-        })
+      describe 'included hostnames' do
+        it 'returns result only with included addresses' do
+          create_dns_records_with_hostnames
+          result = subject.new(page: 1, included_hostnames: 'amet.com').process
+          expect(result.response).to eq({
+            total_records: 0,
+            records: [],
+            related_hostnames: []
+          })
+        end
+
+        it 'returns related_hostnames without included_hostnames' do
+          create_dns_records_with_hostnames
+          result = subject.new(page: 1, included_hostnames: 'lorem.com').process
+          expect(result.response).to eq({
+            total_records: 2,
+            records: [
+              { id: 1, ip: '0.0.0.0' },
+              { id: 2, ip: '1.1.1.1' }
+            ],
+            related_hostnames: [
+              { hostname: 'ipsum.com', count: 2 }
+            ]
+          })
+        end
       end
     end
   end

@@ -9,7 +9,9 @@ class SearchDnsRecords
   end
 
   def process
-    dns_records = DnsRecord.all.page(@page).per(PAGE_LIMIT)
+    dns_records = DnsRecord.includes(:hostnames)
+                  .where(hostnames: { address: @included_hostnames })
+                  .page(@page).per(PAGE_LIMIT)
 
     response = {
       total_records: dns_records.count,
@@ -22,11 +24,12 @@ class SearchDnsRecords
   private
 
   def format_records(dns_records)
-    dns_records.map { |dns_record| { id: dns_record.id, ip: dns_record.ip } }
+    dns_records.order(:id).map { |dns_record| { id: dns_record.id, ip: dns_record.ip } }
   end
 
   def related_hostnames(dns_records)
     hostnames = []
+    dns_records = DnsRecord.where(id: dns_records.pluck(:id))
     addresses_in_dns_records =
       dns_records.includes(:hostnames).pluck(:address)
       .without(@included_hostnames)
