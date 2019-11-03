@@ -34,7 +34,7 @@ This endpoint creates a DNS record and associates it with the hostnames.
 
 cURL example:
 ```
-curl --request POST \                  
+curl --request POST \
 --url 'http://localhost:3000/dns_record' \
 --header 'content-type: application/json' \
 --data '{
@@ -43,8 +43,8 @@ curl --request POST \
     "hostnames_attributes": [
       {
         "hostname": "lorem.com"
-      } 
-    ]  
+      }
+    ]
   }
 }'
 ```
