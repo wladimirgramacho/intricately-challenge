@@ -5,10 +5,10 @@ class SearchDnsRecords
 
   PAGE_LIMIT = 10
 
-  def initialize(page: page, included_hostnames: [], excluded_hostnames: [])
+  def initialize(page: page, included_hostnames: nil, excluded_hostnames: nil)
     @page = page
-    @included_hostnames = included_hostnames
-    @excluded_hostnames = excluded_hostnames
+    @included_hostnames = included_hostnames || []
+    @excluded_hostnames = excluded_hostnames || []
   end
 
   def process
