@@ -32,4 +32,11 @@ describe DnsRecordsController, type: :controller do
       expect(response).to have_http_status(:bad_request)
     end
   end
+
+  describe 'GET #index' do
+    it 'returns success with valid params' do
+      get :index
+      expect(response).to have_http_status(:success)
+    end
+  end
 end

@@ -12,6 +12,10 @@ class DnsRecordsController < ApplicationController
     end
   end
 
+  def index
+    
+  end
+
   private
 
   def create_params
