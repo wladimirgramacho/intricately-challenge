@@ -11,7 +11,8 @@ class SearchDnsRecords
     dns_records = DnsRecord.all.page(@page).per(PAGE_LIMIT)
 
     response = {
-      total_records: dns_records.count
+      total_records: dns_records.count,
+      records: dns_records
     }
     Result.new(true, nil, response)
   end

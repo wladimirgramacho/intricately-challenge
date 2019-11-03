@@ -11,8 +11,7 @@ describe SearchDnsRecords do
       end
 
       it 'returns count of dns_records' do
-        create(:dns_record)
-        create(:dns_record)
+        2.times {create(:dns_record) }
         result = subject.new(page: 1).process
         expect(result.response[:total_records]).to eq 2
       end
@@ -21,6 +20,14 @@ describe SearchDnsRecords do
         20.times { create(:dns_record) }
         result = subject.new(page: 1).process
         expect(result.response[:total_records]).to eq 10
+      end
+
+      it 'returns an array of dns_records' do
+        records = []
+        records << create(:dns_record, ip: '1.1.1.1')
+        records << create(:dns_record, ip: '2.2.2.2')
+        result = subject.new(page: 1).process
+        expect(result.response[:records]).to eq(records)
       end
     end
   end
