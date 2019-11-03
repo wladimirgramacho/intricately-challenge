@@ -31,6 +31,12 @@ describe CreateDnsRecord do
         result = subject.new(params).process
         expect(DnsRecord.find(result.model_id).hostnames.count).to eq 2
       end
+
+      it 'returns failure if dns record is already exists' do
+        DnsRecord.create(ip: '1.1.1.1')
+        result = subject.new(params).process
+        expect(result.success?).to be_falsey
+      end
     end
   end
 end
