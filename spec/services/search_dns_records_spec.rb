@@ -3,6 +3,16 @@ require 'rails_helper'
 describe SearchDnsRecords do
   subject { described_class }
 
+  def create_dns_records_with_hostnames
+    hostnames = []
+    hostnames << create(:hostname, address: 'lorem.com')
+    hostnames << create(:hostname, address: 'ipsum.com')
+    2.times do |n|
+      dns_record = create(:dns_record, ip: "#{n}.#{n}.#{n}.#{n}")
+      dns_record.hostnames << hostnames
+    end
+  end
+
   describe 'process' do
     context 'with valid params' do
       it 'returns successful result' do
@@ -23,25 +33,40 @@ describe SearchDnsRecords do
       end
 
       it 'returns an array of dns_records' do
-        records = []
-        records << create(:dns_record, ip: '1.1.1.1')
-        records << create(:dns_record, ip: '2.2.2.2')
+        create(:dns_record, ip: '0.0.0.0')
+        create(:dns_record, ip: '1.1.1.1')
+
         result = subject.new(page: 1).process
-        expect(result.response[:records]).to eq(records)
+        expect(result.response[:records]).to eq([
+          { id: 1, ip: '0.0.0.0' },
+          { id: 2, ip: '1.1.1.1' }
+        ])
       end
 
       it 'returns related hostnames' do
-        hostnames = []
-        hostnames << create(:hostname, address: 'lorem.com')
-        hostnames << create(:hostname, address: 'ipsum.com')
-        2.times do
-          dns_record = create(:dns_record)
-          dns_record.hostnames << hostnames
-        end
-        related_hostnames = hostnames.map { |h| { hostname: h[:address], count: 2 } }
+        create_dns_records_with_hostnames
+        related_hostnames = [
+          { hostname: 'lorem.com', count: 2 },
+          { hostname: 'ipsum.com', count: 2 }
+        ]
 
         result = subject.new(page: 1).process
         expect(result.response[:related_hostnames]).to eq(related_hostnames)
+      end
+
+      it 'returns result only including passed addresses' do
+        create_dns_records_with_hostnames
+        result = subject.new(page: 1, included_hostnames: 'lorem.com').process
+        expect(result.response).to eq({
+          total_records: 2,
+          records: [
+            { id: 1, ip: '0.0.0.0' },
+            { id: 2, ip: '1.1.1.1' }
+          ],
+          related_hostnames: [
+            { hostname: 'ipsum.com', count: 2 }
+          ]
+        })
       end
     end
   end

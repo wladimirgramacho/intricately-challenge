@@ -3,8 +3,9 @@ class SearchDnsRecords
 
   PAGE_LIMIT = 10
 
-  def initialize(page: page)
+  def initialize(page: page, included_hostnames: nil)
     @page = page
+    @included_hostnames = included_hostnames
   end
 
   def process
@@ -12,7 +13,7 @@ class SearchDnsRecords
 
     response = {
       total_records: dns_records.count,
-      records: dns_records,
+      records: format_records(dns_records),
       related_hostnames: related_hostnames(dns_records)
     }
     Result.new(true, nil, response)
@@ -20,9 +21,15 @@ class SearchDnsRecords
 
   private
 
+  def format_records(dns_records)
+    dns_records.map { |dns_record| { id: dns_record.id, ip: dns_record.ip } }
+  end
+
   def related_hostnames(dns_records)
     hostnames = []
-    addresses_in_dns_records = dns_records.includes(:hostnames).pluck(:address)
+    addresses_in_dns_records =
+      dns_records.includes(:hostnames).pluck(:address)
+      .without(@included_hostnames)
     addresses = addresses_in_dns_records.uniq
     addresses.each do |address|
       hostnames << {
