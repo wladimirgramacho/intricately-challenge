@@ -1,4 +1,6 @@
 class SearchDnsRecords
+  class MissingPage < StandardError; end
+
   Result = Struct.new(:success?, :error_messages, :response)
 
   PAGE_LIMIT = 10
@@ -10,6 +12,8 @@ class SearchDnsRecords
   end
 
   def process
+    raise MissingPage if @page.nil?
+
     dns_records = query_dns_records
 
     response = {
@@ -18,6 +22,9 @@ class SearchDnsRecords
       related_hostnames: related_hostnames(dns_records)
     }
     Result.new(true, nil, response)
+
+  rescue StandardError => e
+    Result.new(false, e.message, nil)
   end
 
   private
@@ -28,6 +35,7 @@ class SearchDnsRecords
     else
       query = DnsRecord.includes(:hostnames)
       query = query.where(hostnames: { address: @included_hostnames }) unless @included_hostnames.empty?
+
       unless @excluded_hostnames.empty?
         excluded_dns_records_ids = DnsRecord.includes(:hostnames).where(hostnames: { address: @excluded_hostnames })
         query = query.where.not(id: excluded_dns_records_ids)
@@ -42,10 +50,12 @@ class SearchDnsRecords
 
   def related_hostnames(dns_records)
     hostnames = []
+
     dns_records = DnsRecord.where(id: dns_records.pluck(:id))
-    addresses_in_dns_records =
-      dns_records.includes(:hostnames).pluck(:address)
-      .without(@included_hostnames + @excluded_hostnames)
+    addresses_in_dns_records = dns_records
+                                .includes(:hostnames).pluck(:address)
+                                .without(@included_hostnames + @excluded_hostnames)
+
     addresses = addresses_in_dns_records.uniq
     addresses.each do |address|
       hostnames << {

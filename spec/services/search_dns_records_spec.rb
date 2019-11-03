@@ -110,5 +110,12 @@ describe SearchDnsRecords do
         end
       end
     end
+
+    context 'with invalid params' do
+      it 'returns failure if page is not passed' do
+        result = subject.new(page: nil).process
+        expect(result.success?).to be_falsey
+      end
+    end
   end
 end
