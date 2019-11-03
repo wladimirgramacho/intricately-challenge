@@ -1,24 +1,61 @@
-# README
+# Intricately API Challenge
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
 
-Things you may want to cover:
+### Setup
 
-* Ruby version
+To setup the project run:
 
-* System dependencies
+```
+docker-compose build
+docker-compose run api rails db:setup
+```
 
-* Configuration
+To start the server run:
 
-* Database creation
+```
+docker-compose up
+```
 
-* Database initialization
 
-* How to run the test suite
+### Test
 
-* Services (job queues, cache servers, search engines, etc.)
+For testing run:
 
-* Deployment instructions
+```
+docker-compose run api rspec
+```
 
-* ...
+
+## API
+
+### Endpoint 1 (POST /dns_record):
+
+This endpoint creates a DNS record and associates it with the hostnames.
+
+cURL example:
+```
+curl --request POST \                  
+--url 'http://localhost:3000/dns_record' \
+--header 'content-type: application/json' \
+--data '{
+  "dns_record": {
+    "ip": "1.1.1.1",
+    "hostnames_attributes": [
+      {
+        "hostname": "lorem.com"
+      } 
+    ]  
+  }
+}'
+```
+
+### Endpoint 2 (GET /dns_records):
+
+This endpoint retrieves DNS records and informations about them.
+
+cURL example:
+```
+curl --request GET \
+--url 'http://localhost:3000/dns_records?page=1&included_hostnames[]=ipsum.com&included_hostnames[]=dolor.com&excluded_hostnames[]=sit.com' \
+--header 'content-type: application/json'
+```
