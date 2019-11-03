@@ -45,5 +45,12 @@ describe CreateDnsRecord do
         expect(DnsRecord.find(result.model_id).hostnames.count).to eq 2
       end
     end
+
+    context 'with invalid params' do
+      it 'returns failure if ip is not passed' do
+        result = subject.new(ip: nil, hostnames: ['lorem.com']).process
+        expect(result.success?).to be_falsey
+      end
+    end
   end
 end
