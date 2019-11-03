@@ -29,6 +29,20 @@ describe SearchDnsRecords do
         result = subject.new(page: 1).process
         expect(result.response[:records]).to eq(records)
       end
+
+      it 'returns related hostnames' do
+        hostnames = []
+        hostnames << create(:hostname, address: 'lorem.com')
+        hostnames << create(:hostname, address: 'ipsum.com')
+        2.times do
+          dns_record = create(:dns_record)
+          dns_record.hostnames << hostnames
+        end
+        related_hostnames = hostnames.map { |h| { hostname: h[:address], count: 2 } }
+
+        result = subject.new(page: 1).process
+        expect(result.response[:related_hostnames]).to eq(related_hostnames)
+      end
     end
   end
 end
