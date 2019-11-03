@@ -20,7 +20,7 @@ class DnsRecordsController < ApplicationController
     ).process
 
     if result.success?
-      render json: { id: result.response }
+      render json: result.response
     else
       render json: { error: result.error_messages, status: 400 }, status: 400
     end
