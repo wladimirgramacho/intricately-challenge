@@ -1,6 +1,7 @@
 require 'rails_helper'
 
 RSpec.describe DnsRecord, type: :model do
+  it { should have_and_belong_to_many :hostnames }
   it { should validate_uniqueness_of(:ip) }
 
   it 'validates ip address format' do
