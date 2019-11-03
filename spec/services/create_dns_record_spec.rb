@@ -21,6 +21,11 @@ describe CreateDnsRecord do
         expect(result.model_id).to_not be nil
         expect(DnsRecord.count).to eq 1
       end
+
+      it 'creates Hostnames' do
+        result = subject.new(params).process
+        expect(Hostname.count).to eq 2
+      end
     end
   end
 end
