@@ -26,6 +26,11 @@ describe CreateDnsRecord do
         result = subject.new(params).process
         expect(Hostname.count).to eq 2
       end
+
+      it 'associates hostnames and dns_records' do
+        result = subject.new(params).process
+        expect(DnsRecord.find(result.model_id).hostnames.count).to eq 2
+      end
     end
   end
 end

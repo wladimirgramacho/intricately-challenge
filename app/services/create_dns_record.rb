@@ -8,7 +8,9 @@ class CreateDnsRecord
 
   def process
     dns_record = DnsRecord.create(ip: @ip)
-    @hostnames.each { |hostname| Hostname.create(address: hostname) }
+    @hostnames.each do |hostname|
+      dns_record.hostnames << Hostname.create(address: hostname)
+    end
 
     Result.new(true, nil, dns_record.id)
   end
