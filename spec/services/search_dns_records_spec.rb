@@ -16,6 +16,12 @@ describe SearchDnsRecords do
         result = subject.new(page: 1).process
         expect(result.response[:total_records]).to eq 2
       end
+
+      it 'returns count of dns_records by page' do
+        20.times { create(:dns_record) }
+        result = subject.new(page: 1).process
+        expect(result.response[:total_records]).to eq 10
+      end
     end
   end
 end
