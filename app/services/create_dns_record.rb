@@ -7,6 +7,8 @@ class CreateDnsRecord
   end
 
   def process
-    Result.new(true, nil, nil)    
+    dns_record = DnsRecord.create(ip: @ip)
+
+    Result.new(true, nil, dns_record.id)
   end
 end
