@@ -37,6 +37,13 @@ describe CreateDnsRecord do
         result = subject.new(params).process
         expect(result.success?).to be_falsey
       end
+
+      it 'associates but does not create hostname if already exists' do
+        Hostname.create(address: 'lorem.com')
+        result = subject.new(params).process
+        expect(Hostname.count).to eq 2
+        expect(DnsRecord.find(result.model_id).hostnames.count).to eq 2
+      end
     end
   end
 end

@@ -13,7 +13,7 @@ class CreateDnsRecord
     raise RecordInvalid unless dns_record.valid?
 
     @hostnames.each do |hostname|
-      dns_record.hostnames << Hostname.create(address: hostname)
+      dns_record.hostnames << Hostname.find_or_create_by(address: hostname)
     end
 
     Result.new(true, nil, dns_record.id)
