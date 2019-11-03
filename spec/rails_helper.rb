@@ -60,6 +60,9 @@ RSpec.configure do |config|
   config.filter_rails_from_backtrace!
   # arbitrary gems may also be filtered via:
   # config.filter_gems_from_backtrace("gem name")
+
+  config.include FactoryBot::Syntax::Methods
+  FactoryBot.definition_file_paths = [File.expand_path('../factories', __FILE__)]
 end
 
 Shoulda::Matchers.configure do |config|
