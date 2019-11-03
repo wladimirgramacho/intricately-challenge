@@ -13,7 +13,17 @@ class DnsRecordsController < ApplicationController
   end
 
   def index
-    
+    result = SearchDnsRecords.new(
+      page: params[:page],
+      included_hostnames: params[:included_hostnames],
+      excluded_hostnames: params[:excluded_hostnames]
+    ).process
+
+    if result.success?
+      render json: { id: result.response }
+    else
+      render json: { error: result.error_messages, status: 400 }, status: 400
+    end
   end
 
   private

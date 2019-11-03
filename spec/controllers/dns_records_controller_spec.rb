@@ -35,8 +35,19 @@ describe DnsRecordsController, type: :controller do
 
   describe 'GET #index' do
     it 'returns success with valid params' do
-      get :index
+      get :index, params: { page: 1 }
       expect(response).to have_http_status(:success)
+    end
+
+    it 'calls SearchDnsRecords service with params' do
+      service_result = OpenStruct.new(success?: true)
+      expect_any_instance_of(SearchDnsRecords).to receive(:process).and_return(service_result)
+      get :index, params: { page: 1 }
+    end
+
+    it 'returns bad_request if service failed' do
+      get :index, params: {}
+      expect(response).to have_http_status(:bad_request)
     end
   end
 end
