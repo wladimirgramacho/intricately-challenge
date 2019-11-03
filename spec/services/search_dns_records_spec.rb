@@ -53,30 +53,60 @@ describe SearchDnsRecords do
         expect(result.response[:related_hostnames]).to eq(related_hostnames)
       end
 
-      describe 'included hostnames' do
-        it 'returns result only with included addresses' do
+      describe 'optional arguments' do
+        before do
           create_dns_records_with_hostnames
-          result = subject.new(page: 1, included_hostnames: 'amet.com').process
-          expect(result.response).to eq({
-            total_records: 0,
-            records: [],
-            related_hostnames: []
-          })
         end
 
-        it 'returns related_hostnames without included_hostnames' do
-          create_dns_records_with_hostnames
-          result = subject.new(page: 1, included_hostnames: 'lorem.com').process
-          expect(result.response).to eq({
-            total_records: 2,
-            records: [
-              { id: 1, ip: '0.0.0.0' },
-              { id: 2, ip: '1.1.1.1' }
-            ],
-            related_hostnames: [
-              { hostname: 'ipsum.com', count: 2 }
-            ]
-          })
+        describe 'included hostnames' do
+          it 'returns result only with included addresses' do
+            result = subject.new(page: 1, included_hostnames: ['amet.com']).process
+            expect(result.response).to eq({
+              total_records: 0,
+              records: [],
+              related_hostnames: []
+            })
+          end
+
+          it 'returns related_hostnames without included_hostnames' do
+            result = subject.new(page: 1, included_hostnames: ['lorem.com']).process
+            expect(result.response).to eq({
+              total_records: 2,
+              records: [
+                { id: 1, ip: '0.0.0.0' },
+                { id: 2, ip: '1.1.1.1' }
+              ],
+              related_hostnames: [
+                { hostname: 'ipsum.com', count: 2 }
+              ]
+            })
+          end
+        end
+
+        describe 'excluded hostnames' do
+          it 'returns result only without excluded addresses' do
+            result = subject.new(page: 1, excluded_hostnames: ['lorem.com']).process
+            expect(result.response).to eq({
+              total_records: 0,
+              records: [],
+              related_hostnames: []
+            })
+          end
+
+          it 'returns related_hostnames without excluded_hostnames' do
+            dns_record = create(:dns_record, ip: '2.2.2.2')
+            dns_record.hostnames << create(:hostname, address: 'amet.com')
+            result = subject.new(page: 1, excluded_hostnames: ['lorem.com']).process
+            expect(result.response).to eq({
+              total_records: 1,
+              records: [
+                { id: 3, ip: '2.2.2.2' }
+              ],
+              related_hostnames: [
+                { hostname: 'amet.com', count: 1 }
+              ]
+            })
+          end
         end
       end
     end
