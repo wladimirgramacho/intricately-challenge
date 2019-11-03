@@ -3,7 +3,13 @@ class DnsRecordsController < ApplicationController
     ip = create_params[:ip]
     addresses = create_params[:hostnames_attributes].map {|h| h[:hostname]}
 
-    CreateDnsRecord.new(ip: ip, hostnames: addresses).process
+    result = CreateDnsRecord.new(ip: ip, hostnames: addresses).process
+
+    if result.success?
+      render json: { id: result.model_id }
+    else
+      render json: { error: result.error_messages, status: 400 }, status: 400
+    end
   end
 
   private
